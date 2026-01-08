@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Car, Users, Calendar, LayoutDashboard, ArrowLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -31,6 +31,7 @@ const navigation = [
 
 export function AdminSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
 
   return (
     <aside
@@ -67,11 +68,19 @@ export function AdminSidebar() {
       </nav>
 
       <div className="px-4 py-6 border-t">
-        <Button asChild variant="outline" className="w-full bg-transparent" size="sm">
-          <Link href="/">
-            <ArrowLeft className="w-4 h-4 mr-2" aria-hidden="true" />
-            Volver al Sitio
-          </Link>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full bg-transparent"
+          size="sm"
+          onClick={() => {
+            localStorage.removeItem("adminUser")
+            router.push("/")
+            router.refresh()
+          }}
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" aria-hidden="true" />
+          Volver al Sitio
         </Button>
       </div>
     </aside>

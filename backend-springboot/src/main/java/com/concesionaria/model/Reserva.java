@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,11 +30,17 @@ public class Reserva {
     @NotNull(message = "El cliente es obligatorio")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Cliente cliente;
 
     @NotNull(message = "El auto es obligatorio")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auto_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Auto auto;
 
     @Column(name = "fecha_reserva", nullable = false, updatable = false)

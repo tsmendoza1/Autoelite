@@ -29,8 +29,8 @@ public class AutoController {
     @GetMapping("/{id}")
     public ResponseEntity<Auto> obtenerPorId(@PathVariable Long id) {
         return autoService.obtenerPorId(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/disponibles")
@@ -40,17 +40,15 @@ public class AutoController {
 
     @GetMapping("/buscar")
     public ResponseEntity<List<Auto>> buscar(
-        @RequestParam(required = false) String marca,
-        @RequestParam(required = false) String modelo,
-        @RequestParam(required = false) Integer anioMin,
-        @RequestParam(required = false) Integer anioMax,
-        @RequestParam(required = false) BigDecimal precioMin,
-        @RequestParam(required = false) BigDecimal precioMax,
-        @RequestParam(required = false) String estado
-    ) {
+            @RequestParam(required = false) String marca,
+            @RequestParam(required = false) String modelo,
+            @RequestParam(required = false) Integer anioMin,
+            @RequestParam(required = false) Integer anioMax,
+            @RequestParam(required = false) BigDecimal precioMin,
+            @RequestParam(required = false) BigDecimal precioMax,
+            @RequestParam(required = false) String estado) {
         List<Auto> autos = autoService.buscarConFiltros(
-            marca, modelo, anioMin, anioMax, precioMin, precioMax, estado
-        );
+                marca, modelo, anioMin, anioMax, precioMin, precioMax, estado);
         return ResponseEntity.ok(autos);
     }
 
@@ -62,9 +60,8 @@ public class AutoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Auto> actualizar(
-        @PathVariable Long id, 
-        @Valid @RequestBody Auto auto
-    ) {
+            @PathVariable Long id,
+            @Valid @RequestBody Auto auto) {
         try {
             Auto autoActualizado = autoService.actualizar(id, auto);
             return ResponseEntity.ok(autoActualizado);

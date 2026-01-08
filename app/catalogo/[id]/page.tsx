@@ -9,8 +9,9 @@ import { ArrowLeft, Calendar, Fuel, Gauge, Palette, Settings, CheckCircle2 } fro
 import { getAutoById } from "@/lib/api"
 import { notFound } from "next/navigation"
 
-export default async function AutoDetallePage({ params }: { params: { id: string } }) {
-  const auto = await getAutoById(Number(params.id))
+export default async function AutoDetallePage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
+  const auto = await getAutoById(Number(resolvedParams.id))
 
   if (!auto) {
     notFound()

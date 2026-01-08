@@ -1,7 +1,43 @@
-import type React from "react"
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import { AdminSidebar } from "@/components/admin-sidebar"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const [isAuthorized, setIsAuthorized] = useState(false)
+
+  useEffect(() => {
+    // Si estamos en la página de login, no verificar auth
+    if (pathname === "/admin/login") {
+      setIsAuthorized(true)
+      return
+    }
+
+    const startCheck = () => {
+      const userStr = localStorage.getItem("adminUser")
+      if (!userStr) {
+        router.push("/admin/login")
+      } else {
+        setIsAuthorized(true)
+      }
+    }
+
+    // Pequeño delay para asegurar hidratación
+    startCheck()
+  }, [pathname, router])
+
+  // Si es la página de login, renderizar sin sidebar
+  if (pathname === "/admin/login") {
+    return <>{children}</>
+  }
+
+  if (!isAuthorized) {
+    return null // O un loading spinner
+  }
+
   return (
     <div className="flex h-screen overflow-hidden">
       <AdminSidebar />
