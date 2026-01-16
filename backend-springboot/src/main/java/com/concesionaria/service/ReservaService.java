@@ -19,6 +19,7 @@ public class ReservaService {
 
     private final ReservaRepository reservaRepository;
     private final AutoRepository autoRepository;
+    private final com.concesionaria.repository.ClienteRepository clienteRepository;
 
     @Transactional(readOnly = true)
     public List<Reserva> obtenerTodas() {
@@ -42,38 +43,48 @@ public class ReservaService {
 
     @Transactional
     public Reserva crear(Reserva reserva) {
-        // Actualizar estado del auto a Reservado
-        if (reserva.getAuto() != null) {
-            autoRepository.findById(reserva.getAuto().getId())
-                .ifPresent(auto -> {
-                    auto.setEstado("Reservado");
-                    autoRepository.save(auto);
-                });
+        // Cargar entidades gestionadas para evitar errores de "Transient instance"
+        if (reserva.getCliente() != null && reserva.getCliente().getId() != null) {
+            com.concesionaria.model.Cliente cliente = clienteRepository.findById(reserva.getCliente().getId())
+                    .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+            reserva.setCliente(cliente);
         }
+
+        if (reserva.getAuto() != null && reserva.getAuto().getId() != null) {
+            com.concesionaria.model.Auto auto = autoRepository.findById(reserva.getAuto().getId())
+                    .orElseThrow(() -> new RuntimeException("Auto no encontrado"));
+
+            // Actualizar estado del auto a Reservado
+            auto.setEstado("Reservado");
+            autoRepository.save(auto);
+
+            reserva.setAuto(auto);
+        }
+
         return reservaRepository.save(reserva);
     }
 
     @Transactional
     public Reserva actualizar(Long id, Reserva reservaActualizada) {
         return reservaRepository.findById(id)
-            .map(reserva -> {
-                reserva.setFechaInicio(reservaActualizada.getFechaInicio());
-                reserva.setFechaFin(reservaActualizada.getFechaFin());
-                reserva.setEstado(reservaActualizada.getEstado());
-                reserva.setNotas(reservaActualizada.getNotas());
-                
-                // Si se cancela la reserva, volver el auto a Disponible
-                if ("Cancelada".equals(reservaActualizada.getEstado())) {
-                    autoRepository.findById(reserva.getAuto().getId())
-                        .ifPresent(auto -> {
-                            auto.setEstado("Disponible");
-                            autoRepository.save(auto);
-                        });
-                }
-                
-                return reservaRepository.save(reserva);
-            })
-            .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+                .map(reserva -> {
+                    reserva.setFechaInicio(reservaActualizada.getFechaInicio());
+                    reserva.setFechaFin(reservaActualizada.getFechaFin());
+                    reserva.setEstado(reservaActualizada.getEstado());
+                    reserva.setNotas(reservaActualizada.getNotas());
+
+                    // Si se cancela la reserva, volver el auto a Disponible
+                    if ("Cancelada".equals(reservaActualizada.getEstado())) {
+                        autoRepository.findById(reserva.getAuto().getId())
+                                .ifPresent(auto -> {
+                                    auto.setEstado("Disponible");
+                                    autoRepository.save(auto);
+                                });
+                    }
+
+                    return reservaRepository.save(reserva);
+                })
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
     }
 
     @Transactional
@@ -81,10 +92,10 @@ public class ReservaService {
         reservaRepository.findById(id).ifPresent(reserva -> {
             // Volver el auto a Disponible
             autoRepository.findById(reserva.getAuto().getId())
-                .ifPresent(auto -> {
-                    auto.setEstado("Disponible");
-                    autoRepository.save(auto);
-                });
+                    .ifPresent(auto -> {
+                        auto.setEstado("Disponible");
+                        autoRepository.save(auto);
+                    });
             reservaRepository.deleteById(id);
         });
     }

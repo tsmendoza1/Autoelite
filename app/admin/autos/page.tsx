@@ -2,6 +2,8 @@
 
 import type React from "react"
 
+import { useSearchParams } from "next/navigation"
+
 import { useState, useEffect } from "react"
 import { AdminHeader } from "@/components/admin-header"
 import { Button } from "@/components/ui/button"
@@ -27,6 +29,7 @@ import { getAutos, createAuto, updateAuto, deleteAuto } from "@/lib/api"
 
 export default function AutosPage() {
   const { toast } = useToast()
+  const searchParams = useSearchParams()
   const [autos, setAutos] = useState<Auto[]>([])
   const [filteredAutos, setFilteredAutos] = useState<Auto[]>([])
   const [loading, setLoading] = useState(true)
@@ -46,7 +49,7 @@ export default function AutosPage() {
     color: "",
     descripcion: "",
     imagenUrl: "",
-    disponible: true,
+    estado: "Disponible",
     caracteristicas: "",
   })
 
@@ -83,7 +86,18 @@ export default function AutosPage() {
     }
   }
 
+  useEffect(() => {
+    const editId = searchParams.get("editId")
+    if (editId && autos.length > 0) {
+      const autoToEdit = autos.find((a) => a.id === Number(editId))
+      if (autoToEdit) {
+        handleOpenDialog(autoToEdit)
+      }
+    }
+  }, [searchParams, autos])
+
   const handleOpenDialog = (auto?: Auto) => {
+    console.log("Opening dialog for:", auto)
     if (auto) {
       setEditingAuto(auto)
       setFormData({
@@ -97,8 +111,8 @@ export default function AutosPage() {
         color: auto.color,
         descripcion: auto.descripcion,
         imagenUrl: auto.imagenUrl,
-        disponible: auto.disponible,
-        caracteristicas: auto.caracteristicas.join(", "),
+        estado: auto.estado,
+        caracteristicas: (auto.caracteristicas || []).join(", "),
       })
     } else {
       setEditingAuto(null)
@@ -113,7 +127,7 @@ export default function AutosPage() {
         color: "",
         descripcion: "",
         imagenUrl: "",
-        disponible: true,
+        estado: "Disponible",
         caracteristicas: "",
       })
     }
@@ -236,18 +250,27 @@ export default function AutosPage() {
                       <TableCell>{auto.kilometraje.toLocaleString()} km</TableCell>
                       <TableCell>{auto.combustible}</TableCell>
                       <TableCell>
-                        {auto.disponible ? (
-                          <Badge className="bg-accent text-accent-foreground">Disponible</Badge>
-                        ) : (
-                          <Badge variant="secondary">No Disponible</Badge>
-                        )}
+                        <Badge
+                          variant={
+                            auto.estado === "Disponible"
+                              ? "default"
+                              : auto.estado === "Vendido"
+                                ? "secondary"
+                                : "outline"
+                          }
+                        >
+                          {auto.estado}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleOpenDialog(auto)}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleOpenDialog(auto)
+                            }}
                             aria-label={`Editar ${auto.marca} ${auto.modelo}`}
                           >
                             <Pencil className="w-4 h-4" aria-hidden="true" />
@@ -423,17 +446,22 @@ export default function AutosPage() {
                 />
               </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="disponible"
-                  checked={formData.disponible}
-                  onChange={(e) => setFormData({ ...formData, disponible: e.target.checked })}
-                  className="rounded border-border focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                />
-                <Label htmlFor="disponible" className="cursor-pointer">
-                  Disponible para venta
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="estado">Estado *</Label>
+                <Select
+                  value={formData.estado}
+                  onValueChange={(value) => setFormData({ ...formData, estado: value })}
+                >
+                  <SelectTrigger id="estado">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Disponible">Disponible</SelectItem>
+                    <SelectItem value="Vendido">Vendido</SelectItem>
+                    <SelectItem value="Reservado">Reservado</SelectItem>
+                    <SelectItem value="Mantenimiento">Mantenimiento</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <DialogFooter>

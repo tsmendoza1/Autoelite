@@ -2,6 +2,8 @@
 
 import type React from "react"
 
+import { useSearchParams } from "next/navigation"
+
 import { useState, useEffect } from "react"
 import { AdminHeader } from "@/components/admin-header"
 import { Button } from "@/components/ui/button"
@@ -27,6 +29,7 @@ import { getReservas, createReserva, updateReserva, deleteReserva, getClientes, 
 
 export default function ReservasPage() {
   const { toast } = useToast()
+  const searchParams = useSearchParams()
   const [reservas, setReservas] = useState<Reserva[]>([])
   const [filteredReservas, setFilteredReservas] = useState<Reserva[]>([])
   const [clientes, setClientes] = useState<Cliente[]>([])
@@ -85,12 +88,22 @@ export default function ReservasPage() {
     }
   }
 
+  useEffect(() => {
+    const editId = searchParams.get("editId")
+    if (editId && reservas.length > 0) {
+      const reservaToEdit = reservas.find((r) => r.id === Number(editId))
+      if (reservaToEdit) {
+        handleOpenDialog(reservaToEdit)
+      }
+    }
+  }, [searchParams, reservas])
+
   const handleOpenDialog = (reserva?: Reserva) => {
     if (reserva) {
       setEditingReserva(reserva)
       setFormData({
-        clienteId: reserva.clienteId,
-        autoId: reserva.autoId,
+        clienteId: reserva.clienteId || reserva.cliente?.id || 0,
+        autoId: reserva.autoId || reserva.auto?.id || 0,
         fechaReserva: reserva.fechaReserva,
         fechaInicio: reserva.fechaInicio,
         fechaFin: reserva.fechaFin,
@@ -240,7 +253,7 @@ export default function ReservasPage() {
                       </TableCell>
                       <TableCell>{new Date(reserva.fechaInicio).toLocaleDateString()}</TableCell>
                       <TableCell>{new Date(reserva.fechaFin).toLocaleDateString()}</TableCell>
-                      <TableCell>€{reserva.montoTotal.toLocaleString()}</TableCell>
+                      <TableCell>€{(reserva.montoTotal || reserva.auto?.precio || 0).toLocaleString()}</TableCell>
                       <TableCell>
                         <Badge variant={getEstadoBadgeVariant(reserva.estado)}>{reserva.estado}</Badge>
                       </TableCell>
@@ -249,7 +262,10 @@ export default function ReservasPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleOpenDialog(reserva)}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleOpenDialog(reserva)
+                            }}
                             aria-label={`Editar reserva de ${reserva.cliente?.nombre}`}
                           >
                             <Pencil className="w-4 h-4" aria-hidden="true" />
@@ -327,7 +343,7 @@ export default function ReservasPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {autos
-                        .filter((auto) => auto.disponible)
+                        .filter((auto) => auto.estado === "Disponible")
                         .map((auto) => (
                           <SelectItem key={auto.id} value={auto.id.toString()}>
                             {auto.marca} {auto.modelo} - €{auto.precio.toLocaleString()}

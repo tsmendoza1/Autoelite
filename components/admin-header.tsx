@@ -1,8 +1,8 @@
 "use client"
 
-import { Menu, Bell } from "lucide-react"
+import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Notifications } from "@/components/notifications"
 
 interface AdminHeaderProps {
   title: string
@@ -24,15 +24,7 @@ export function AdminHeader({ title, description }: AdminHeaderProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="relative" aria-label="Notificaciones">
-            <Bell className="w-5 h-5" aria-hidden="true" />
-            <Badge
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-              aria-label="3 notificaciones no leídas"
-            >
-              3
-            </Badge>
-          </Button>
+          <Notifications />
         </div>
       </div>
     </header>

@@ -41,13 +41,13 @@ export default async function AutoDetallePage({ params }: { params: Promise<{ id
                   className="object-cover"
                   priority
                 />
-                {auto.disponible ? (
+                {auto.estado === "Disponible" ? (
                   <Badge className="absolute top-4 right-4 bg-accent text-accent-foreground text-base px-4 py-2">
                     Disponible
                   </Badge>
                 ) : (
                   <Badge className="absolute top-4 right-4 text-base px-4 py-2" variant="secondary">
-                    No Disponible
+                    {auto.estado}
                   </Badge>
                 )}
               </div>
@@ -125,9 +125,9 @@ export default async function AutoDetallePage({ params }: { params: Promise<{ id
               )}
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button asChild size="lg" className="flex-1" disabled={!auto.disponible}>
+                <Button asChild size="lg" className="flex-1" disabled={auto.estado !== "Disponible"}>
                   <Link href={`/contacto?auto=${auto.id}`}>
-                    {auto.disponible ? "Solicitar Información" : "No Disponible"}
+                    {auto.estado === "Disponible" ? "Solicitar Información" : "No Disponible"}
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="flex-1 bg-transparent">
@@ -140,6 +140,6 @@ export default async function AutoDetallePage({ params }: { params: Promise<{ id
       </main>
 
       <PublicFooter />
-    </div>
+    </div >
   )
 }

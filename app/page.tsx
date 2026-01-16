@@ -10,7 +10,7 @@ import Image from "next/image"
 
 export default async function HomePage() {
   const autos = await getAutos()
-  const autosDestacados = autos.filter((auto) => auto.disponible).slice(0, 3)
+  const autosDestacados = autos.filter((auto) => auto.estado === "Disponible").slice(0, 3)
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -118,6 +118,39 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Mission and Vision Section */}
+        <section className="py-16 bg-white" aria-labelledby="mission-vision-heading">
+          <div className="container px-4 mx-auto">
+            <h2 id="mission-vision-heading" className="sr-only">
+              Nuestra Misión y Visión
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6">
+                <div className="inline-block p-3 rounded-lg bg-primary/10">
+                  <Award className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-3xl font-bold tracking-tight">Nuestra Misión</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Transformar la experiencia de compra de vehículos, ofreciendo calidad, transparencia y un servicio
+                  excepcional que supere las expectativas de cada cliente. Nos esforzamos por construir relaciones
+                  duraderas basadas en la confianza y la honestidad.
+                </p>
+              </div>
+              <div className="space-y-6">
+                <div className="inline-block p-3 rounded-lg bg-primary/10">
+                  <Shield className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-3xl font-bold tracking-tight">Nuestra Visión</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Ser el concesionario líder referente en el mercado, reconocidos por nuestra integridad, innovación y
+                  compromiso con la satisfacción total de nuestros clientes. Aspiramos a establecer nuevos estándares de
+                  excelencia en la industria automotriz.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Featured Cars Section */}
         <section className="py-16" aria-labelledby="featured-heading">
           <div className="container px-4 mx-auto">
@@ -146,7 +179,7 @@ export default async function HomePage() {
                       fill
                       className="object-cover"
                     />
-                    {auto.disponible && (
+                    {auto.estado === "Disponible" && (
                       <Badge className="absolute top-4 right-4 bg-accent text-accent-foreground">Disponible</Badge>
                     )}
                   </div>

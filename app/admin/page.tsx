@@ -1,12 +1,13 @@
 import { AdminHeader } from "@/components/admin-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Car, Calendar, TrendingUp } from "lucide-react"
+import { Users, Car, Calendar, TrendingUp, ArrowRight, Pencil } from "lucide-react"
 import { getClientes, getAutos, getReservas } from "@/lib/api"
+import Link from "next/link"
 
 export default async function AdminDashboard() {
   const [clientes, autos, reservas] = await Promise.all([getClientes(), getAutos(), getReservas()])
 
-  const autosDisponibles = autos.filter((auto) => auto.disponible).length
+  const autosDisponibles = autos.filter((auto) => auto.estado === "Disponible").length
   const reservasPendientes = reservas.filter((r) => r.estado === "Pendiente").length
   const clientesActivos = clientes.filter((c) => c.activo).length
 
@@ -62,8 +63,11 @@ export default async function AdminDashboard() {
 
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Últimas Reservas</CardTitle>
+              <Link href="/admin/reservas" className="text-sm text-primary hover:underline flex items-center">
+                Ver todas <ArrowRight className="ml-1 w-3 h-3" />
+              </Link>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -81,8 +85,17 @@ export default async function AdminDashboard() {
                       </p>
                     </div>
                     <div className="text-right space-y-1">
-                      <p className="text-sm font-medium">€{reserva.montoTotal.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">{reserva.estado}</p>
+                      <p className="text-sm font-medium">€{(reserva.montoTotal || 0).toLocaleString()}</p>
+                      <div className="flex items-center justify-end gap-2">
+                        <p className="text-xs text-muted-foreground">{reserva.estado}</p>
+                        <Link
+                          href={`/admin/reservas?editId=${reserva.id}`}
+                          className="p-1 hover:bg-muted rounded-full transition-colors"
+                          aria-label="Editar reserva"
+                        >
+                          <Pencil className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -91,8 +104,11 @@ export default async function AdminDashboard() {
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Autos Más Vendidos</CardTitle>
+              <Link href="/admin/autos" className="text-sm text-primary hover:underline flex items-center">
+                Ver todos <ArrowRight className="ml-1 w-3 h-3" />
+              </Link>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -108,8 +124,19 @@ export default async function AdminDashboard() {
                       <p className="text-xs text-muted-foreground">{auto.anio}</p>
                     </div>
                     <div className="text-right space-y-1">
-                      <p className="text-sm font-medium">€{auto.precio.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">{auto.disponible ? "Disponible" : "Vendido"}</p>
+                      <p className="text-sm font-medium">€{(auto.precio || 0).toLocaleString()}</p>
+                      <div className="flex items-center justify-end gap-2">
+                        <p className="text-xs text-muted-foreground">
+                          {auto.estado === "Disponible" ? "Disponible" : "Vendido"}
+                        </p>
+                        <Link
+                          href={`/admin/autos?editId=${auto.id}`}
+                          className="p-1 hover:bg-muted rounded-full transition-colors"
+                          aria-label="Editar auto"
+                        >
+                          <Pencil className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 ))}

@@ -8,7 +8,7 @@ export interface Cliente {
   telefono: string
   direccion: string
   dni: string
-  fechaRegistro: string
+  fechaRegistro?: string
   activo: boolean
 }
 
@@ -24,7 +24,7 @@ export interface Auto {
   color: string
   descripcion: string
   imagenUrl: string
-  disponible: boolean
+  estado: string
   caracteristicas: string[]
 }
 

@@ -50,6 +50,11 @@ public class Cliente {
     @Column(nullable = false, length = 20)
     private String telefono;
 
+    @NotBlank(message = "El DNI es obligatorio")
+    @Size(max = 20, message = "El DNI no puede exceder 20 caracteres")
+    @Column(nullable = false, unique = true, length = 20)
+    private String dni;
+
     @Size(max = 255)
     @Column(length = 255)
     private String direccion;

@@ -71,7 +71,9 @@ export default function CatalogoPage() {
 
     // Filtro de disponibilidad
     if (disponibleFilter !== "all") {
-      filtered = filtered.filter((auto) => auto.disponible === (disponibleFilter === "true"))
+      filtered = filtered.filter((auto) =>
+        disponibleFilter === "true" ? auto.estado === "Disponible" : auto.estado !== "Disponible",
+      )
     }
 
     setFilteredAutos(filtered)
@@ -229,11 +231,11 @@ export default function CatalogoPage() {
                         fill
                         className="object-cover"
                       />
-                      {auto.disponible ? (
+                      {auto.estado === "Disponible" ? (
                         <Badge className="absolute top-4 right-4 bg-accent text-accent-foreground">Disponible</Badge>
                       ) : (
                         <Badge className="absolute top-4 right-4" variant="secondary">
-                          No Disponible
+                          {auto.estado}
                         </Badge>
                       )}
                     </div>

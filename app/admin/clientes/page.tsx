@@ -115,7 +115,6 @@ export default function ClientesPage() {
       } else {
         await createCliente({
           ...formData,
-          fechaRegistro: new Date().toISOString().split("T")[0],
           activo: true,
         })
         toast({
@@ -226,7 +225,10 @@ export default function ClientesPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleOpenDialog(cliente)}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleOpenDialog(cliente)
+                            }}
                             aria-label={`Editar cliente ${cliente.nombre} ${cliente.apellido}`}
                           >
                             <Pencil className="w-4 h-4" aria-hidden="true" />
