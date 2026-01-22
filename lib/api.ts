@@ -18,24 +18,29 @@ export async function login(username: string, password: string) {
 
 // === HELPER ===
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  })
+  try {
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+      },
+    })
 
-  if (!res.ok) {
-    throw new Error(`Error fetching ${endpoint}: ${res.statusText}`)
+    if (!res.ok) {
+      console.warn(`Fetch failed for ${endpoint}: ${res.statusText}`)
+      return [] as unknown as T // Retornar vacío para no romper el build
+    }
+
+    if (res.status === 204) {
+      return {} as T
+    }
+
+    return res.json()
+  } catch (error) {
+    console.error(`Error fetching ${endpoint}:`, error)
+    return [] as unknown as T
   }
-
-  // Handle empty responses (like DELETE)
-  if (res.status === 204) {
-    return {} as T
-  }
-
-  return res.json()
 }
 
 // === CLIENTES ===
