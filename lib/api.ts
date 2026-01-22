@@ -1,6 +1,6 @@
 import { Cliente, Auto, Reserva } from "./types"
 
-const API_URL = "http://localhost:8999/api"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8999/api"
 
 // === AUTH ===
 export async function login(username: string, password: string) {
