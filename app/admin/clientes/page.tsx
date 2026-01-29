@@ -21,7 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { Plus, Pencil, Trash2, Search } from "lucide-react"
 import type { Cliente } from "@/lib/types"
-import { getClientes, createCliente, updateCliente, deleteCliente } from "@/lib/api"
+import { getPersonas as getClientes, createPersona as createCliente, updatePersona as updateCliente, deletePersona as deleteCliente } from "@/lib/api"
 
 export default function ClientesPage() {
   const { toast } = useToast()
