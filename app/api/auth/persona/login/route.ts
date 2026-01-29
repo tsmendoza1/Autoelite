@@ -7,9 +7,9 @@ export async function POST(request: Request) {
         const { email, password } = body;
 
         const result = await query(
-            `SELECT id, nombre, apellido, email, rol, activo, password 
-       FROM personas 
-       WHERE email = $1`,
+            `SELECT id, username, role, password 
+       FROM usuarios 
+       WHERE username = $1`,
             [email]
         );
 
@@ -19,9 +19,8 @@ export async function POST(request: Request) {
 
         const user = result.rows[0];
 
-        // Simple password check (plaintext as per current setup, though normally hash)
-        // The previous Java code seemed to use plaintext or simple match based on seed data.
-        // If seed data has 'password123', we check directly.
+        // Map database fields to what frontend expects if needed, or just use as is.
+        // Frontend likely expects generic user object.
         if (user.password !== password) {
             return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
         }
