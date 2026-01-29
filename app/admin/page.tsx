@@ -1,11 +1,12 @@
 import { AdminHeader } from "@/components/admin-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Car, Calendar, TrendingUp, ArrowRight, Pencil } from "lucide-react"
-import { getPersonas, getAutos, getReservas } from "@/lib/api"
+import { getAutos } from "@/lib/api"
+import { getAllClientes, getAllReservas } from "@/lib/dal"
 import Link from "next/link"
 
 export default async function AdminDashboard() {
-  const [personas, autos, reservas] = await Promise.all([getPersonas(), getAutos(), getReservas()])
+  const [personas, autos, reservas] = await Promise.all([getAllClientes(), getAutos(), getAllReservas()])
 
   const autosDisponibles = autos.filter((auto) => auto.estado === "Disponible").length
   const reservasPendientes = reservas.filter((r) => r.estado === "Pendiente").length
