@@ -4,6 +4,7 @@ import { query } from '@/lib/db';
 export async function GET() {
     try {
         // Select and map snake_case columns to camelCase properties
+        // Mapping 'clientes' table to 'Persona' interface
         const result = await query(`
       SELECT 
         id, 
@@ -13,10 +14,9 @@ export async function GET() {
         telefono, 
         dni, 
         direccion, 
-        rol, 
         activo, 
         fecha_registro as "fechaRegistro"
-      FROM personas
+      FROM clientes
       ORDER BY id ASC
     `);
 
@@ -31,18 +31,15 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
         const {
-            nombre, apellido, email, telefono, dni, direccion, rol, password
+            nombre, apellido, email, telefono, dni, direccion
         } = body;
 
-        // Use default password if not provided
-        const pwd = password || "password123";
-
-        // INSERT query
+        // INSERT query into 'clientes'
         const result = await query(
-            `INSERT INTO personas (nombre, apellido, email, telefono, dni, direccion, rol, password, activo, fecha_registro)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, NOW())
-       RETURNING id, nombre, apellido, email, telefono, dni, direccion, rol, activo, fecha_registro as "fechaRegistro"`,
-            [nombre, apellido, email, telefono, dni, direccion, rol, pwd]
+            `INSERT INTO clientes (nombre, apellido, email, telefono, dni, direccion, activo, fecha_registro)
+       VALUES ($1, $2, $3, $4, $5, $6, true, NOW())
+       RETURNING id, nombre, apellido, email, telefono, dni, direccion, activo, fecha_registro as "fechaRegistro"`,
+            [nombre, apellido, email, telefono, dni, direccion]
         );
 
         return NextResponse.json(result.rows[0]);

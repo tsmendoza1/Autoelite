@@ -11,16 +11,16 @@ export async function GET() {
         r.estado, 
         r.notas as "comentarios",
         r.fecha_reserva as "fechaReserva",
-        p.id as "personaId",
-        p.nombre as "persona_nombre",
-        p.apellido as "persona_apellido",
-        p.email as "persona_email",
+        c.id as "personaId",
+        c.nombre as "persona_nombre",
+        c.apellido as "persona_apellido",
+        c.email as "persona_email",
         a.id as "autoId",
         a.marca as "auto_marca",
         a.modelo as "auto_modelo",
         a.precio as "auto_precio"
       FROM reservas r
-      JOIN personas p ON r.persona_id = p.id
+      JOIN clientes c ON r.cliente_id = c.id
       JOIN autos a ON r.auto_id = a.id
       ORDER BY r.fecha_reserva DESC
     `);
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
         const { personaId, autoId, fechaInicio, fechaFin, estado, comentarios } = body;
 
         const result = await query(
-            `INSERT INTO reservas (persona_id, auto_id, fecha_inicio, fecha_fin, estado, notas, fecha_reserva)
+            `INSERT INTO reservas (cliente_id, auto_id, fecha_inicio, fecha_fin, estado, notas, fecha_reserva)
        VALUES ($1, $2, $3, $4, $5, $6, NOW())
        RETURNING id`,
             [personaId, autoId, fechaInicio, fechaFin, estado || 'Pendiente', comentarios]
