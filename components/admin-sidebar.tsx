@@ -1,8 +1,9 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Car, Users, Calendar, LayoutDashboard, ArrowLeft } from "lucide-react"
+import { Car, Users, Calendar, LayoutDashboard, ArrowLeft, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
@@ -13,8 +14,13 @@ const navigation = [
     icon: LayoutDashboard,
   },
   {
-    name: "Clientes",
-    href: "/admin/clientes",
+    name: "Personas",
+    href: "/admin/personas",
+    icon: Users,
+  },
+  {
+    name: "Registros",
+    href: "/admin/registros",
     icon: Users,
   },
   {
@@ -27,11 +33,36 @@ const navigation = [
     href: "/admin/reservas",
     icon: Calendar,
   },
+  {
+    name: "Footer / Config",
+    href: "/admin/footer",
+    icon: Settings,
+  },
 ]
 
 export function AdminSidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const [role, setRole] = useState<string | null>(null)
+
+  useEffect(() => {
+    const userStr = localStorage.getItem("adminUser")
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr)
+        setRole(user.rol)
+      } catch (e) {
+        console.error("Error parsing adminUser")
+      }
+    }
+  }, [])
+
+  const filteredNavigation = navigation.filter((item) => {
+    if (role === "EMPLEADO") {
+      return item.name === "Autos" || item.name === "Reservas"
+    }
+    return true // ADMIN ve todo
+  })
 
   return (
     <aside
@@ -45,7 +76,7 @@ export function AdminSidebar() {
       </div>
 
       <nav className="flex-1 px-4 py-6 space-y-2" aria-label="Menú principal del administrador">
-        {navigation.map((item) => {
+        {filteredNavigation.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/admin" && pathname?.startsWith(item.href))
           const Icon = item.icon
           return (

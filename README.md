@@ -6,7 +6,7 @@ Sistema completo para gestión de concesionaria de vehículos con panel administ
 
 ### Funcionalidades
 - **Catálogo Público**: Navegación y búsqueda de vehículos disponibles
-- **Panel Administrativo**: Gestión completa de clientes, autos y reservas (CRUD)
+- **Panel Administrativo**: Gestión completa de persona, autos y reservas (CRUD)
 - **Sistema de Reservas**: Seguimiento de reservas con múltiples estados
 - **Búsqueda y Filtros**: Filtrado avanzado por marca, combustible, transmisión, etc.
 
@@ -58,7 +58,7 @@ Sistema completo para gestión de concesionaria de vehículos con panel administ
 ## Estructura Técnica
 
 ### Tipos TypeScript (Entidades JPA)
-- `Cliente`: Información completa de clientes
+- `Persona`: Información completa de personas
 - `Auto`: Detalles de vehículos con características
 - `Reserva`: Sistema de reservas con relaciones
 
@@ -91,7 +91,7 @@ Las funciones en `lib/api.ts` simulan llamadas a un backend Spring Boot:
 - `/contacto` - Formulario de contacto
 - `/sobre-nosotros` - Información de la empresa
 - `/admin` - Dashboard administrativo
-- `/admin/clientes` - Gestión de clientes
+- `/admin/personas` - Gestión de personas
 - `/admin/autos` - Gestión de autos
 - `/admin/reservas` - Gestión de reservas
 

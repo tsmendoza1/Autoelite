@@ -57,11 +57,11 @@ export default function LoginPage() {
                             </Alert>
                         )}
                         <div className="space-y-2">
-                            <Label htmlFor="username">Usuario</Label>
+                            <Label htmlFor="username">Correo Electrónico</Label>
                             <Input
                                 id="username"
-                                type="text"
-                                placeholder="admin"
+                                type="email"
+                                placeholder="ejemplo@correo.com"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                                 required
