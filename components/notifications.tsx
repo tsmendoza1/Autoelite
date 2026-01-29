@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { getAutos, getClientes, getReservas } from "@/lib/api"
-import { Auto, Cliente, Reserva } from "@/lib/types"
+import { getAutos, getPersonas, getReservas } from "@/lib/api"
+import { Auto, Persona, Reserva } from "@/lib/types"
 
 interface Activity {
     id: string
-    type: "auto" | "cliente" | "reserva"
+    type: "auto" | "persona" | "reserva"
     action: "creado" | "actualizado"
     message: string
     timestamp: Date
@@ -25,7 +25,7 @@ export function Notifications() {
     useEffect(() => {
         const fetchActivities = async () => {
             try {
-                const [autos, clientes, reservas] = await Promise.all([getAutos(), getClientes(), getReservas()])
+                const [autos, personas, reservas] = await Promise.all([getAutos(), getPersonas(), getReservas()])
 
                 const newActivities: Activity[] = []
 
@@ -43,17 +43,17 @@ export function Notifications() {
                         })
                     })
 
-                // Process recent Clientes (last 5)
-                clientes
+                // Process recent Personas (last 5)
+                personas
                     .sort((a, b) => b.id - a.id)
                     .slice(0, 5)
-                    .forEach((cliente) => {
+                    .forEach((persona) => {
                         newActivities.push({
-                            id: `cliente-${cliente.id}`,
-                            type: "cliente",
+                            id: `persona-${persona.id}`,
+                            type: "persona",
                             action: "creado",
-                            message: `Nuevo cliente: ${cliente.nombre} ${cliente.apellido}`,
-                            timestamp: new Date(), // In a real app, use cliente.fechaRegistro
+                            message: `Nueva persona: ${persona.nombre} ${persona.apellido}`,
+                            timestamp: new Date(), // In a real app, use persona.fechaRegistro
                         })
                     })
 
@@ -100,7 +100,7 @@ export function Notifications() {
         switch (type) {
             case "auto":
                 return <Car className="w-4 h-4 text-blue-500" />
-            case "cliente":
+            case "persona":
                 return <User className="w-4 h-4 text-green-500" />
             case "reserva":
                 return <Calendar className="w-4 h-4 text-purple-500" />

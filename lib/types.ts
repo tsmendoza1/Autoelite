@@ -1,6 +1,6 @@
 // Tipos que representan las entidades JPA del backend Spring Boot
 
-export interface Cliente {
+export interface Persona {
   id: number
   nombre: string
   apellido: string
@@ -10,6 +10,7 @@ export interface Cliente {
   dni: string
   fechaRegistro?: string
   activo: boolean
+  rol?: string
 }
 
 export interface Auto {
@@ -30,7 +31,7 @@ export interface Auto {
 
 export interface Reserva {
   id: number
-  clienteId: number
+  personaId: number // Updated from clienteId
   autoId: number
   fechaReserva: string
   fechaInicio: string
@@ -38,7 +39,7 @@ export interface Reserva {
   estado: "Pendiente" | "Confirmada" | "Cancelada" | "Completada"
   comentarios: string
   montoTotal: number
-  cliente?: Cliente
+  persona?: Persona // Updated from cliente
   auto?: Auto
 }
 

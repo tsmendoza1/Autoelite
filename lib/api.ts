@@ -1,19 +1,22 @@
-import { Cliente, Auto, Reserva } from "./types"
+import { Persona, Auto, Reserva } from "./types"
 
-const API_URL = "http://localhost:8999/api"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8999/api"
 
 // === AUTH ===
 export async function login(username: string, password: string) {
-  // TODO: Implementar login real contra el backend
-  if (username === "admin" && password === "admin123") {
-    return {
-      id: 1,
-      username: "admin",
-      role: "ADMIN",
-      token: "mock-jwt-token-123456"
-    }
+  try {
+    const res = await fetch(`${NEXT_API_URL}/api/auth/persona/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: username, password }),
+    })
+
+    if (!res.ok) return null
+    return res.json()
+  } catch (err) {
+    console.error("Login error:", err)
+    return null
   }
-  return null
 }
 
 // === HELPER ===
@@ -38,37 +41,48 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
   return res.json()
 }
 
-// === CLIENTES ===
-export async function getClientes(): Promise<Cliente[]> {
-  return fetchAPI<Cliente[]>("/clientes")
+const NEXT_API_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+
+// === PERSONAS ===
+export async function getPersonas(): Promise<Persona[]> {
+  const res = await fetch(`${NEXT_API_URL}/api/personas`, { cache: 'no-store' });
+  if (!res.ok) throw new Error("Error fetching personas");
+  return res.json();
 }
 
-export async function getClienteById(id: number): Promise<Cliente | null> {
+export async function getPersonaById(id: number): Promise<Persona | null> {
   try {
-    return await fetchAPI<Cliente>(`/clientes/${id}`)
+    return await fetchAPI<Persona>(`/personas/${id}`)
   } catch (e) {
     return null
   }
 }
 
-export async function createCliente(cliente: Omit<Cliente, "id">): Promise<Cliente> {
-  return fetchAPI<Cliente>("/clientes", {
+export async function createPersona(persona: Omit<Persona, "id">): Promise<Persona> {
+  const res = await fetch(`${NEXT_API_URL}/api/personas`, {
     method: "POST",
-    body: JSON.stringify(cliente),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(persona),
   })
+  if (!res.ok) throw new Error("Error creating persona");
+  return res.json();
 }
 
-export async function updateCliente(id: number, cliente: Partial<Cliente>): Promise<Cliente> {
-  return fetchAPI<Cliente>(`/clientes/${id}`, {
+export async function updatePersona(id: number, persona: Partial<Persona>): Promise<Persona> {
+  const res = await fetch(`${NEXT_API_URL}/api/personas/${id}`, {
     method: "PUT",
-    body: JSON.stringify(cliente),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(persona),
   })
+  if (!res.ok) throw new Error("Error updating persona");
+  return res.json();
 }
 
-export async function deleteCliente(id: number): Promise<void> {
-  await fetchAPI<void>(`/clientes/${id}`, {
+export async function deletePersona(id: number): Promise<void> {
+  const res = await fetch(`${NEXT_API_URL}/api/personas/${id}`, {
     method: "DELETE",
   })
+  if (!res.ok) throw new Error("Error deleting persona");
 }
 
 // === AUTOS ===
@@ -112,61 +126,96 @@ export async function deleteAuto(id: number): Promise<void> {
 // === RESERVAS ===
 export async function getReservas(): Promise<Reserva[]> {
   try {
-    return await fetchAPI<Reserva[]>("/reservas")
+    const res = await fetch(`${NEXT_API_URL}/api/reservas`, { cache: 'no-store' });
+    if (!res.ok) throw new Error("Error fetching reservas");
+    return res.json();
   } catch (error) {
     console.error("Error fetching reservas:", error)
     return []
   }
 }
 
-export async function getReservaById(id: number): Promise<Reserva | null> {
-  try {
-    return await fetchAPI<Reserva>(`/reservas/${id}`)
-  } catch (e) {
-    return null
-  }
-}
-
 export async function createReserva(reserva: Omit<Reserva, "id">): Promise<Reserva> {
-  // Transformar datos para el backend
-  const payload = {
-    ...reserva,
-    cliente: { id: reserva.clienteId },
-    auto: { id: reserva.autoId },
-    notas: reserva.comentarios,
-    // Eliminar campos que no existen en el backend o que tienen otro formato
-    clienteId: undefined,
-    autoId: undefined,
-    comentarios: undefined,
-    montoTotal: undefined, // El backend no guarda el monto calculado
-    fechaReserva: undefined, // El backend la genera
-  }
-  return fetchAPI<Reserva>("/reservas", {
+  const res = await fetch(`${NEXT_API_URL}/api/reservas`, {
     method: "POST",
-    body: JSON.stringify(payload),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(reserva),
   })
+  if (!res.ok) throw new Error("Error creating reserva")
+  return res.json()
 }
 
 export async function updateReserva(id: number, reserva: Partial<Reserva>): Promise<Reserva> {
-  const payload = {
-    ...reserva,
-    cliente: reserva.clienteId ? { id: reserva.clienteId } : undefined,
-    auto: reserva.autoId ? { id: reserva.autoId } : undefined,
-    notas: reserva.comentarios,
-    clienteId: undefined,
-    autoId: undefined,
-    comentarios: undefined,
-    montoTotal: undefined,
-    fechaReserva: undefined,
-  }
-  return fetchAPI<Reserva>(`/reservas/${id}`, {
+  const res = await fetch(`${NEXT_API_URL}/api/reservas/${id}`, {
     method: "PUT",
-    body: JSON.stringify(payload),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(reserva),
   })
+  if (!res.ok) throw new Error("Error updating reserva")
+  return res.json()
 }
 
 export async function deleteReserva(id: number): Promise<void> {
-  await fetchAPI<void>(`/reservas/${id}`, {
+  const res = await fetch(`${NEXT_API_URL}/api/reservas/${id}`, {
     method: "DELETE",
   })
+  if (!res.ok) throw new Error("Error deleting reserva")
+}
+
+// ...
+
+export async function getReservasPersona(personaId: number): Promise<Reserva[]> {
+  try {
+    return await fetchAPI<Reserva[]>(`/reservas/persona/${personaId}`)
+  } catch (error) {
+    console.error("Error fetching persona reservas:", error)
+    return []
+  }
+}
+
+// === AUTH PERSONA ===
+export async function loginPersona(credentials: { email: string; password: string }) {
+  // Use local Next.js API route instead of Java backend
+  const res = await fetch(`/api/auth/persona/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  })
+  if (!res.ok) throw new Error("Credenciales inválidas")
+  return res.json()
+}
+
+export async function registerPersona(persona: any) {
+  // Use local Next.js API route instead of Java backend
+  const res = await fetch(`/api/auth/persona/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(persona),
+  })
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(err || "Error registrando persona")
+  }
+  return res.json()
+}
+
+// === FOOTER ===
+export async function getFooterData() {
+  try {
+    const res = await fetch(`${NEXT_API_URL}/api/footer`, { cache: 'no-store' });
+    if (!res.ok) return []
+    return res.json()
+  } catch (e) {
+    return []
+  }
+}
+
+export async function updateFooterData(key: string, value: string) {
+  const res = await fetch(`${NEXT_API_URL}/api/footer`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ keyName: key, value }),
+  })
+  if (!res.ok) throw new Error("Error actualizando footer")
+  return res.json()
 }

@@ -21,7 +21,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       if (!userStr) {
         router.push("/admin/login")
       } else {
-        setIsAuthorized(true)
+        try {
+          const user = JSON.parse(userStr)
+          const role = user.rol
+
+          // Check permissions for EMPLEADO
+          if (role === "EMPLEADO") {
+            const allowedPaths = ["/admin/autos", "/admin/reservas"]
+            const isAllowed = allowedPaths.some(path => pathname === path || pathname.startsWith(path + "/"))
+
+            if (!isAllowed) {
+              router.push("/admin/autos")
+              return
+            }
+          }
+
+          setIsAuthorized(true)
+        } catch (e) {
+          router.push("/admin/login")
+        }
       }
     }
 

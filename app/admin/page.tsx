@@ -1,15 +1,15 @@
 import { AdminHeader } from "@/components/admin-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Car, Calendar, TrendingUp, ArrowRight, Pencil } from "lucide-react"
-import { getClientes, getAutos, getReservas } from "@/lib/api"
+import { getPersonas, getAutos, getReservas } from "@/lib/api"
 import Link from "next/link"
 
 export default async function AdminDashboard() {
-  const [clientes, autos, reservas] = await Promise.all([getClientes(), getAutos(), getReservas()])
+  const [personas, autos, reservas] = await Promise.all([getPersonas(), getAutos(), getReservas()])
 
   const autosDisponibles = autos.filter((auto) => auto.estado === "Disponible").length
   const reservasPendientes = reservas.filter((r) => r.estado === "Pendiente").length
-  const clientesActivos = clientes.filter((c) => c.activo).length
+  const personasActivos = personas.filter((c) => c.activo).length
 
   return (
     <>
@@ -18,12 +18,12 @@ export default async function AdminDashboard() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Clientes</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Personas</CardTitle>
               <Users className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{clientes.length}</div>
-              <p className="text-xs text-muted-foreground mt-1">{clientesActivos} activos</p>
+              <div className="text-2xl font-bold">{personas.length}</div>
+              <p className="text-xs text-muted-foreground mt-1">{personasActivos} activos</p>
             </CardContent>
           </Card>
 
@@ -78,7 +78,7 @@ export default async function AdminDashboard() {
                   >
                     <div className="space-y-1">
                       <p className="text-sm font-medium">
-                        {reserva.cliente?.nombre} {reserva.cliente?.apellido}
+                        {reserva.persona?.nombre} {reserva.persona?.apellido}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {reserva.auto?.marca} {reserva.auto?.modelo}

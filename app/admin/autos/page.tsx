@@ -426,13 +426,46 @@ export default function AutosPage() {
                   <ImageIcon className="w-4 h-4" aria-hidden="true" />
                   URL de Imagen
                 </Label>
-                <Input
-                  id="imagenUrl"
-                  type="url"
-                  value={formData.imagenUrl}
-                  onChange={(e) => setFormData({ ...formData, imagenUrl: e.target.value })}
-                  placeholder="https://ejemplo.com/imagen.jpg"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="imagenUrl"
+                    type="url"
+                    value={formData.imagenUrl}
+                    onChange={(e) => setFormData({ ...formData, imagenUrl: e.target.value })}
+                    placeholder="https://ejemplo.com/imagen.jpg"
+                  />
+                </div>
+                <div className="pt-2">
+                  <Label htmlFor="fileUpload" className="text-sm text-muted-foreground">O subir desde archivo:</Label>
+                  <Input
+                    id="fileUpload"
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+
+                      const uploadData = new FormData()
+                      uploadData.append("file", file)
+
+                      try {
+                        const res = await fetch("http://localhost:8999/api/uploads", {
+                          method: "POST",
+                          body: uploadData,
+                        })
+                        if (!res.ok) throw new Error("Error subiendo imagen")
+                        const data = await res.json()
+                        // Construir URL completa si es necesario, o usar relativa
+                        // Asumiendo backend en 8999/api
+                        const fullUrl = `http://localhost:8999/api${data.url}`
+                        setFormData(prev => ({ ...prev, imagenUrl: fullUrl }))
+                        toast({ title: "Imagen subida", description: "Imagen cargada con éxito" })
+                      } catch (err) {
+                        toast({ title: "Error", description: "Falló la subida de imagen", variant: "destructive" })
+                      }
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

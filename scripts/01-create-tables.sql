@@ -1,14 +1,17 @@
 -- Crear base de datos
 -- CREATE DATABASE concesionaria_db;
 
--- Tabla de Clientes
-CREATE TABLE IF NOT EXISTS clientes (
+-- Tabla de Personas
+CREATE TABLE IF NOT EXISTS personas (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     telefono VARCHAR(20) NOT NULL,
+    dni VARCHAR(20) NOT NULL UNIQUE,
     direccion VARCHAR(255),
+    rol VARCHAR(20) DEFAULT 'CLIENTE',
+    password VARCHAR(255) NOT NULL,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     activo BOOLEAN DEFAULT TRUE
 );
@@ -33,25 +36,25 @@ CREATE TABLE IF NOT EXISTS autos (
 -- Tabla de Reservas
 CREATE TABLE IF NOT EXISTS reservas (
     id SERIAL PRIMARY KEY,
-    cliente_id INTEGER NOT NULL,
+    persona_id INTEGER NOT NULL,
     auto_id INTEGER NOT NULL,
     fecha_reserva TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_inicio DATE NOT NULL,
     fecha_fin DATE NOT NULL,
     estado VARCHAR(20) CHECK (estado IN ('Pendiente', 'Confirmada', 'Completada', 'Cancelada')) DEFAULT 'Pendiente',
     notas TEXT,
-    CONSTRAINT fk_cliente FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE,
+    CONSTRAINT fk_persona FOREIGN KEY (persona_id) REFERENCES personas(id) ON DELETE CASCADE,
     CONSTRAINT fk_auto FOREIGN KEY (auto_id) REFERENCES autos(id) ON DELETE CASCADE
 );
 
 -- Índices para mejorar el rendimiento
-CREATE INDEX idx_clientes_email ON clientes(email);
+CREATE INDEX idx_personas_email ON personas(email);
 CREATE INDEX idx_autos_estado ON autos(estado);
-CREATE INDEX idx_reservas_cliente ON reservas(cliente_id);
+CREATE INDEX idx_reservas_cliente ON reservas(persona_id);
 CREATE INDEX idx_reservas_auto ON reservas(auto_id);
 CREATE INDEX idx_reservas_estado ON reservas(estado);
 
 -- Comentarios en las tablas
-COMMENT ON TABLE clientes IS 'Tabla para almacenar información de clientes';
+COMMENT ON TABLE personas IS 'Tabla para almacenar información de personas';
 COMMENT ON TABLE autos IS 'Tabla para almacenar inventario de vehículos';
 COMMENT ON TABLE reservas IS 'Tabla para gestionar reservas de vehículos';
