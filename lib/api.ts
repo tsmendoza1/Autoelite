@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8999/api"
 // === AUTH ===
 export async function login(username: string, password: string) {
   try {
-    const res = await fetch(`${NEXT_API_URL}/api/auth/persona/login`, {
+    const res = await fetch(`/api/auth/persona/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: username, password }),
