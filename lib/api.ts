@@ -1,6 +1,6 @@
 import { Persona, Auto, Reserva } from "./types"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8999/api"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://autoelite-backend-v5sw.onrender.com/api"
 
 // === AUTH ===
 export async function login(username: string, password: string) {
@@ -46,7 +46,13 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
   }
 }
 
-const NEXT_API_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+const getBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:3000";
+};
+
+const NEXT_API_URL = getBaseUrl();
 
 // === PERSONAS ===
 export async function getPersonas(): Promise<Persona[]> {
