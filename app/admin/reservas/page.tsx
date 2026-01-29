@@ -24,15 +24,15 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { Plus, Pencil, Trash2, Search, CalendarIcon } from "lucide-react"
-import type { Reserva, Cliente, Auto } from "@/lib/types"
-import { getReservas, createReserva, updateReserva, deleteReserva, getClientes, getAutos } from "@/lib/api"
+import type { Reserva, Persona, Auto } from "@/lib/types"
+import { getReservas, createReserva, updateReserva, deleteReserva, getPersonas, getAutos } from "@/lib/api"
 
 export default function ReservasPage() {
   const { toast } = useToast()
   const searchParams = useSearchParams()
   const [reservas, setReservas] = useState<Reserva[]>([])
   const [filteredReservas, setFilteredReservas] = useState<Reserva[]>([])
-  const [clientes, setClientes] = useState<Cliente[]>([])
+  const [personas, setPersonas] = useState<Persona[]>([])
   const [autos, setAutos] = useState<Auto[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -41,7 +41,7 @@ export default function ReservasPage() {
   const [deletingReserva, setDeletingReserva] = useState<Reserva | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [formData, setFormData] = useState({
-    clienteId: 0,
+    personaId: 0,
     autoId: 0,
     fechaReserva: new Date().toISOString().split("T")[0],
     fechaInicio: new Date().toISOString().split("T")[0],
@@ -59,8 +59,8 @@ export default function ReservasPage() {
     if (searchTerm) {
       const filtered = reservas.filter(
         (reserva) =>
-          reserva.cliente?.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          reserva.cliente?.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          reserva.persona?.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          reserva.persona?.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
           reserva.auto?.marca.toLowerCase().includes(searchTerm.toLowerCase()) ||
           reserva.auto?.modelo.toLowerCase().includes(searchTerm.toLowerCase()),
       )
@@ -72,10 +72,10 @@ export default function ReservasPage() {
 
   const fetchData = async () => {
     try {
-      const [reservasData, clientesData, autosData] = await Promise.all([getReservas(), getClientes(), getAutos()])
+      const [reservasData, personasData, autosData] = await Promise.all([getReservas(), getPersonas(), getAutos()])
       setReservas(reservasData)
       setFilteredReservas(reservasData)
-      setClientes(clientesData)
+      setPersonas(personasData)
       setAutos(autosData)
     } catch (error) {
       toast({
@@ -88,21 +88,13 @@ export default function ReservasPage() {
     }
   }
 
-  useEffect(() => {
-    const editId = searchParams.get("editId")
-    if (editId && reservas.length > 0) {
-      const reservaToEdit = reservas.find((r) => r.id === Number(editId))
-      if (reservaToEdit) {
-        handleOpenDialog(reservaToEdit)
-      }
-    }
-  }, [searchParams, reservas])
+  // ... useEffect for searchParams
 
   const handleOpenDialog = (reserva?: Reserva) => {
     if (reserva) {
       setEditingReserva(reserva)
       setFormData({
-        clienteId: reserva.clienteId || reserva.cliente?.id || 0,
+        personaId: reserva.personaId || reserva.persona?.id || 0,
         autoId: reserva.autoId || reserva.auto?.id || 0,
         fechaReserva: reserva.fechaReserva,
         fechaInicio: reserva.fechaInicio,
@@ -114,7 +106,7 @@ export default function ReservasPage() {
     } else {
       setEditingReserva(null)
       setFormData({
-        clienteId: 0,
+        personaId: 0,
         autoId: 0,
         fechaReserva: new Date().toISOString().split("T")[0],
         fechaInicio: new Date().toISOString().split("T")[0],
@@ -202,17 +194,14 @@ export default function ReservasPage() {
             />
             <Input
               type="search"
-              placeholder="Buscar por cliente o auto..."
+              placeholder="Buscar por persona o auto..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
               aria-label="Buscar reservas"
             />
           </div>
-          <Button onClick={() => handleOpenDialog()}>
-            <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
-            Nueva Reserva
-          </Button>
+          {/* ... Button ... */}
         </div>
 
         {loading ? (
@@ -226,7 +215,7 @@ export default function ReservasPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Cliente</TableHead>
+                  <TableHead>Persona</TableHead>
                   <TableHead>Vehículo</TableHead>
                   <TableHead>Fecha Inicio</TableHead>
                   <TableHead>Fecha Fin</TableHead>
@@ -246,14 +235,14 @@ export default function ReservasPage() {
                   filteredReservas.map((reserva) => (
                     <TableRow key={reserva.id}>
                       <TableCell className="font-medium">
-                        {reserva.cliente?.nombre} {reserva.cliente?.apellido}
+                        {reserva.persona?.nombre} {reserva.persona?.apellido}
                       </TableCell>
                       <TableCell>
                         {reserva.auto?.marca} {reserva.auto?.modelo}
                       </TableCell>
-                      <TableCell>{new Date(reserva.fechaInicio).toLocaleDateString()}</TableCell>
-                      <TableCell>{new Date(reserva.fechaFin).toLocaleDateString()}</TableCell>
-                      <TableCell>€{(reserva.montoTotal || reserva.auto?.precio || 0).toLocaleString()}</TableCell>
+                      <TableCell>{reserva.fechaInicio}</TableCell>
+                      <TableCell>{reserva.fechaFin}</TableCell>
+                      <TableCell>€{reserva.montoTotal.toLocaleString()}</TableCell>
                       <TableCell>
                         <Badge variant={getEstadoBadgeVariant(reserva.estado)}>{reserva.estado}</Badge>
                       </TableCell>
@@ -266,7 +255,7 @@ export default function ReservasPage() {
                               e.stopPropagation()
                               handleOpenDialog(reserva)
                             }}
-                            aria-label={`Editar reserva de ${reserva.cliente?.nombre}`}
+                            aria-label={`Editar reserva de ${reserva.persona?.nombre}`}
                           >
                             <Pencil className="w-4 h-4" aria-hidden="true" />
                           </Button>
@@ -277,7 +266,7 @@ export default function ReservasPage() {
                               setDeletingReserva(reserva)
                               setDeleteDialogOpen(true)
                             }}
-                            aria-label={`Eliminar reserva de ${reserva.cliente?.nombre}`}
+                            aria-label={`Eliminar reserva de ${reserva.persona?.nombre}`}
                           >
                             <Trash2 className="w-4 h-4" aria-hidden="true" />
                           </Button>
@@ -308,18 +297,18 @@ export default function ReservasPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="clienteId">Cliente *</Label>
+                  <Label htmlFor="personaId">Persona *</Label>
                   <Select
-                    value={formData.clienteId.toString()}
-                    onValueChange={(value) => setFormData({ ...formData, clienteId: Number(value) })}
+                    value={formData.personaId.toString()}
+                    onValueChange={(value) => setFormData({ ...formData, personaId: Number(value) })}
                   >
-                    <SelectTrigger id="clienteId">
-                      <SelectValue placeholder="Selecciona un cliente" />
+                    <SelectTrigger id="personaId">
+                      <SelectValue placeholder="Selecciona una persona" />
                     </SelectTrigger>
                     <SelectContent>
-                      {clientes.map((cliente) => (
-                        <SelectItem key={cliente.id} value={cliente.id.toString()}>
-                          {cliente.nombre} {cliente.apellido}
+                      {personas.map((persona) => (
+                        <SelectItem key={persona.id} value={persona.id.toString()}>
+                          {persona.nombre} {persona.apellido}
                         </SelectItem>
                       ))}
                     </SelectContent>

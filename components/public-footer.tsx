@@ -1,7 +1,27 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Car, Mail, Phone, MapPin, Facebook, Instagram, Twitter } from "lucide-react"
+import { getFooterData } from "@/lib/api"
 
 export function PublicFooter() {
+  const [footerData, setFooterData] = useState<any[]>([])
+
+  useEffect(() => {
+    getFooterData().then(setFooterData).catch(() => setFooterData([]))
+  }, [])
+
+  const getValue = (key: string, defaultVal: string) =>
+    footerData.find((d: any) => d.keyName === key)?.value || defaultVal
+
+  const address = getValue("address", "Calle Principal 123, Madrid, España")
+  const phone = getValue("phone", "+34 900 123 456")
+  const email = getValue("email", "info@autopremier.com")
+  const facebook = getValue("facebook", "https://facebook.com")
+  const instagram = getValue("instagram", "https://instagram.com")
+  const twitter = getValue("twitter", "https://twitter.com")
+
   return (
     <footer className="border-t bg-muted/50" role="contentinfo">
       <div className="container px-4 py-12 mx-auto">
@@ -34,10 +54,10 @@ export function PublicFooter() {
                 Catálogo
               </Link>
               <Link
-                href="/sobre-nosotros"
+                href="/panel"
                 className="text-sm text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
               >
-                Sobre Nosotros
+                Mi Cuenta
               </Link>
               <Link
                 href="/contacto"
@@ -55,26 +75,26 @@ export function PublicFooter() {
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
                 <a
-                  href="tel:+34900123456"
+                  href={`tel:${phone}`}
                   className="hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
-                  aria-label="Llamar al +34 900 123 456"
+                  aria-label={`Llamar al ${phone}`}
                 >
-                  +34 900 123 456
+                  {phone}
                 </a>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
                 <a
-                  href="mailto:info@autopremier.com"
+                  href={`mailto:${email}`}
                   className="hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
-                  aria-label="Enviar correo a info@autopremier.com"
+                  aria-label={`Enviar correo a ${email}`}
                 >
-                  info@autopremier.com
+                  {email}
                 </a>
               </div>
               <div className="flex items-start gap-2 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <span>Calle Principal 123, Madrid, España</span>
+                <span>{address}</span>
               </div>
             </div>
           </div>
@@ -84,7 +104,7 @@ export function PublicFooter() {
             <h3 className="text-sm font-semibold">Síguenos</h3>
             <div className="flex gap-3">
               <a
-                href="https://facebook.com"
+                href={facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-md bg-muted hover:bg-primary hover:text-primary-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -93,7 +113,7 @@ export function PublicFooter() {
                 <Facebook className="w-4 h-4" aria-hidden="true" />
               </a>
               <a
-                href="https://instagram.com"
+                href={instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-md bg-muted hover:bg-primary hover:text-primary-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -102,7 +122,7 @@ export function PublicFooter() {
                 <Instagram className="w-4 h-4" aria-hidden="true" />
               </a>
               <a
-                href="https://twitter.com"
+                href={twitter}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-md bg-muted hover:bg-primary hover:text-primary-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
