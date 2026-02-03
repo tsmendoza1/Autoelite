@@ -14,9 +14,10 @@ export async function GET() {
         telefono, 
         dni, 
         direccion, 
+        rol,
         activo, 
         fecha_registro as "fechaRegistro"
-      FROM clientes
+      FROM personas
       ORDER BY id ASC
     `);
 
@@ -31,15 +32,15 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
         const {
-            nombre, apellido, email, telefono, dni, direccion
+            nombre, apellido, email, telefono, dni, direccion, password, rol
         } = body;
 
-        // INSERT query into 'clientes'
+        // INSERT query into 'personas'
         const result = await query(
-            `INSERT INTO clientes (nombre, apellido, email, telefono, dni, direccion, activo, fecha_registro)
-       VALUES ($1, $2, $3, $4, $5, $6, true, NOW())
-       RETURNING id, nombre, apellido, email, telefono, dni, direccion, activo, fecha_registro as "fechaRegistro"`,
-            [nombre, apellido, email, telefono, dni, direccion]
+            `INSERT INTO personas (nombre, apellido, email, telefono, dni, direccion, password, rol, activo, fecha_registro)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, NOW())
+       RETURNING id, nombre, apellido, email, telefono, dni, direccion, rol, activo, fecha_registro as "fechaRegistro"`,
+            [nombre, apellido, email, telefono, dni, direccion, password || 'password123', rol || 'CLIENTE']
         );
 
         return NextResponse.json(result.rows[0]);
