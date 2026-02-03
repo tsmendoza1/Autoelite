@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
-export async function GET() {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const { id } = await params;
         const result = await query(`
       SELECT 
         r.id, 
@@ -22,10 +23,10 @@ export async function GET() {
       FROM reservas r
       JOIN personas c ON r.persona_id = c.id
       JOIN autos a ON r.auto_id = a.id
+      WHERE r.persona_id = $1
       ORDER BY r.fecha_reserva DESC
-    `);
+    `, [id]);
 
-        // Format for frontend expectations
         const reservas = result.rows.map(row => ({
             id: row.id,
             personaId: row.personaId,
@@ -35,7 +36,7 @@ export async function GET() {
             fechaFin: row.fechaFin,
             estado: row.estado,
             comentarios: row.comentarios || "",
-            montoTotal: row.auto_precio, // Fallback to auto price as mock monto
+            montoTotal: row.auto_precio,
             persona: {
                 id: row.personaId,
                 nombre: row.persona_nombre,
@@ -52,26 +53,7 @@ export async function GET() {
 
         return NextResponse.json(reservas);
     } catch (error: any) {
-        console.error("Database error fetching reservas:", error);
-        return NextResponse.json({ error: 'Error fetching reservas' }, { status: 500 });
-    }
-}
-
-export async function POST(request: Request) {
-    try {
-        const body = await request.json();
-        const { personaId, autoId, fechaInicio, fechaFin, estado, comentarios } = body;
-
-        const result = await query(
-            `INSERT INTO reservas (persona_id, auto_id, fecha_inicio, fecha_fin, estado, notas, fecha_reserva)
-       VALUES ($1, $2, $3, $4, $5, $6, NOW())
-       RETURNING id`,
-            [personaId, autoId, fechaInicio, fechaFin, estado || 'Pendiente', comentarios]
-        );
-
-        return NextResponse.json({ id: result.rows[0].id, success: true });
-    } catch (error: any) {
-        console.error("Database error creating reserva:", error);
-        return NextResponse.json({ error: 'Error creating reserva: ' + error.message }, { status: 500 });
+        console.error("Database error fetching reservas for persona:", error);
+        return NextResponse.json({ error: 'Error fetching reservass' }, { status: 500 });
     }
 }

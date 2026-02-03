@@ -1,6 +1,6 @@
 import { Persona, Auto, Reserva } from "./types"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://autoelite-backend-v5sw.onrender.com/api"
+
 
 // === AUTH ===
 export async function login(username: string, password: string) {
@@ -20,31 +20,7 @@ export async function login(username: string, password: string) {
 }
 
 // === HELPER ===
-async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  try {
-    const res = await fetch(`${API_URL}${endpoint}`, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
-    })
-
-    if (!res.ok) {
-      console.warn(`Fetch failed for ${endpoint}: ${res.statusText}`)
-      throw new Error(`Fetch failed: ${res.statusText}`)
-    }
-
-    if (res.status === 204) {
-      return {} as T
-    }
-
-    return res.json()
-  } catch (error) {
-    console.error(`Error fetching ${endpoint}:`, error)
-    throw error
-  }
-}
+// Helper removed as we are using direct fetch to Next.js API now
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return ""; // Browser should use relative path
@@ -64,7 +40,9 @@ export async function getPersonas(): Promise<Persona[]> {
 
 export async function getPersonaById(id: number): Promise<Persona | null> {
   try {
-    return await fetchAPI<Persona>(`/personas/${id}`)
+    const res = await fetch(`${NEXT_API_URL}/api/personas/${id}`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    return res.json();
   } catch (e) {
     return null
   }
@@ -100,7 +78,9 @@ export async function deletePersona(id: number): Promise<void> {
 // === AUTOS ===
 export async function getAutos(): Promise<Auto[]> {
   try {
-    return await fetchAPI<Auto[]>("/autos")
+    const res = await fetch(`${NEXT_API_URL}/api/autos`, { cache: 'no-store' });
+    if (!res.ok) throw new Error("Error fetching autos");
+    return res.json();
   } catch (error) {
     console.error("Error fetching autos:", error)
     return []
@@ -109,30 +89,39 @@ export async function getAutos(): Promise<Auto[]> {
 
 export async function getAutoById(id: number): Promise<Auto | null> {
   try {
-    return await fetchAPI<Auto>(`/autos/${id}`)
+    const res = await fetch(`${NEXT_API_URL}/api/autos/${id}`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    return res.json();
   } catch (e) {
     return null
   }
 }
 
 export async function createAuto(auto: Omit<Auto, "id">): Promise<Auto> {
-  return fetchAPI<Auto>("/autos", {
+  const res = await fetch(`${NEXT_API_URL}/api/autos`, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(auto),
   })
+  if (!res.ok) throw new Error("Error creating auto");
+  return res.json();
 }
 
 export async function updateAuto(id: number, auto: Partial<Auto>): Promise<Auto> {
-  return fetchAPI<Auto>(`/autos/${id}`, {
+  const res = await fetch(`${NEXT_API_URL}/api/autos/${id}`, {
     method: "PUT",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(auto),
   })
+  if (!res.ok) throw new Error("Error updating auto");
+  return res.json();
 }
 
 export async function deleteAuto(id: number): Promise<void> {
-  await fetchAPI<void>(`/autos/${id}`, {
+  const res = await fetch(`${NEXT_API_URL}/api/autos/${id}`, {
     method: "DELETE",
   })
+  if (!res.ok) throw new Error("Error deleting auto");
 }
 
 // === RESERVAS ===
@@ -178,7 +167,9 @@ export async function deleteReserva(id: number): Promise<void> {
 
 export async function getReservasPersona(personaId: number): Promise<Reserva[]> {
   try {
-    return await fetchAPI<Reserva[]>(`/reservas/persona/${personaId}`)
+    const res = await fetch(`${NEXT_API_URL}/api/reservas/persona/${personaId}`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return res.json();
   } catch (error) {
     console.error("Error fetching persona reservas:", error)
     return []
