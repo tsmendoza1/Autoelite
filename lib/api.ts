@@ -32,7 +32,7 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
 
     if (!res.ok) {
       console.warn(`Fetch failed for ${endpoint}: ${res.statusText}`)
-      return [] as unknown as T // Retornar vacío para no romper el build
+      throw new Error(`Fetch failed: ${res.statusText}`)
     }
 
     if (res.status === 204) {
@@ -42,7 +42,7 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
     return res.json()
   } catch (error) {
     console.error(`Error fetching ${endpoint}:`, error)
-    return [] as unknown as T
+    throw error
   }
 }
 
