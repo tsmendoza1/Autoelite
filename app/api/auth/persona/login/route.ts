@@ -7,9 +7,9 @@ export async function POST(request: Request) {
         const { email, password } = body;
 
         const result = await query(
-            `SELECT id, username, role, password 
-       FROM usuarios 
-       WHERE username = $1`,
+            `SELECT id, nombre, apellido, email, rol, password 
+       FROM personas 
+       WHERE email = $1`,
             [email]
         );
 
